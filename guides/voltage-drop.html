@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What Is Voltage Drop and Why It Matters | Circuit Trainer</title>
+<meta name="description" content="Why voltage falls along a long cable, how to calculate it, and what drop is acceptable.">
+<meta property="og:title" content="What Is Voltage Drop and Why It Matters | Circuit Trainer">
+<meta property="og:description" content="Why voltage falls along a long cable, how to calculate it, and what drop is acceptable.">
+<meta property="og:type" content="article">
+<meta name="robots" content="index,follow">
+<style>body{font-family:system-ui,'Segoe UI',Arial,sans-serif;max-width:780px;margin:0 auto;padding:20px;line-height:1.7;color:#1f272c;background:#f6f7f3}nav{margin-bottom:18px;font-size:14px}nav a{margin-right:14px;color:#2a63b8;text-decoration:none}h1{font-size:26px;line-height:1.3}h2{font-size:19px;margin-top:26px;color:#2b3338}p{margin:10px 0}table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px;min-width:420px}th,td{border:1px solid #b9bdb0;padding:7px 9px;text-align:left;vertical-align:top}th{background:#2b3338;color:#fff}.tip{background:#fff6dc;border-left:4px solid #e8860c;padding:10px 14px;margin:16px 0;border-radius:6px}.meta{color:#666;font-size:14px}a{color:#2a63b8}.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}footer{margin-top:34px;font-size:14px;color:#666;border-top:1px solid #d5d9cc;padding-top:12px}</style>
+</head>
+<body>
+<nav><a href="../index.html">App</a><a href="../guides/index.html">Guides</a><a href="../about.html">About</a><a href="../privacy.html">Privacy</a></nav>
+
+<h1>What Is Voltage Drop?</h1>
+<p class="meta">The hidden loss in long cable runs</p>
+<p>When current flows through a cable, the cable's resistance uses up some of the voltage along the way. This is called voltage drop. It increases with distance, with higher current, and with thinner cable.</p>
+<h2>A simple formula</h2>
+<p>For a single-phase circuit, approximately:</p>
+<p><b>Voltage drop = 2 &times; Current &times; Cable resistance (&Omega;/km) &times; Length (km)</b></p>
+<p>The factor of 2 is needed because current travels out on one conductor and back on the other.</p>
+<h2>Worked example</h2>
+<p>Take a 2.5 mm&sup2; copper cable (about 7.41 &Omega;/km), 30 m long, carrying 10 A.</p>
+<p>Length = 0.03 km, so the drop = 2 &times; 10 &times; 7.41 &times; 0.03 &asymp; 4.4 V. On a 230 V supply, that is about 1.9%.</p>
+<h2>How much drop is acceptable?</h2>
+<p>As general guidance, a drop of around 3% is commonly accepted for lighting circuits, and around 5% for other circuits. Higher drop makes lights dim, causes motors to run hot, and shortens the life of pumps and compressors.</p>
+<div class="tip">If the drop is too high on a long run, use a larger cable or split the circuit into two shorter ones. This is often cheaper and more effective.</div>
+<h2>Check it in the app</h2>
+<p>Enter the load, cable length and cable size in the app's "Cable Size &amp; MCB" calculator to see the voltage drop immediately.</p>
+
+<footer>Circuit Trainer: a free tool for learning electrical circuits. <a href="../privacy.html">Privacy policy</a> &middot; <a href="../about.html">About</a></footer>
+</body>
+</html>

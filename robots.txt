@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://engrusmanaziz31308-hue.github.io/circuit-trainer/sitemap.xml
