@@ -810,7 +810,7 @@ function elogDraw(){
  box.querySelector('h3').textContent=(en?'Error log':'ایرر لاگ')+' ('+active+' '+(en?'active':'فعال')+')';
  document.getElementById('elogc').textContent=en?'Clear log':'لاگ صاف کریں';
 }
-function elogSync(present,rec){
+function elogSync(present,rec){try{window.liveDraw&&window.liveDraw()}catch(_){}
  const now=Date.now(),act={};let ch=0;
  ELOG.items.forEach(x=>{if(!x.end)act[x.k]=x});
  Object.keys(present).forEach(k=>{if(!act[k]){const e=rec[k];let nmv='';try{nmv=nm(e.c)}catch(_){}
@@ -2014,6 +2014,7 @@ fo=x=>x>=1e6?f(x/1e6)+' MΩ':x>=1e3?f(x/1e3)+' kΩ':f(x)+' Ω',
 WT=[.125,.25,.5,1,2,5,10],wt=p=>WT.find(w=>w>=2*p)||'>10',
 STD=[1,1.5,2,2.5,3,4,5,6,8,10,12,14,15,16,18,20,25,30,35,40,45,50,60,70,80,90,100,120,150],
 st=c=>c>150?Math.round(c/10)*10:STD.reduce((a,b)=>Math.abs(b-c)<Math.abs(a-c)?b:a);
+C.push({i:'🔧',n:'موٹر کے لیے MCB اور کیبل|Motor MCB & cable',f:[{k:'ph',l:'فیز|Phase',o:PH},{k:'kw',l:'موٹر پاور (kW)|Motor power (kW)',v:11.19},{k:'V',l:'وولٹیج (V)|Voltage (V)',v:400},{k:'pf',l:'پاور فیکٹر|Power factor',v:.85},{k:'eff',l:'ایفیشنسی (%)|Efficiency (%)',v:90},{k:'lrm',l:'سٹارٹ کرنٹ (× FLC)|Start current (× FLC)',v:6}],r:v=>{const ph=v.ph=='3'?Math.sqrt(3):1,FLC=v.kw*1000/(ph*v.V*v.pf*(v.eff/100)),Ist=v.lrm*FLC,mcb=nb(1.25*FLC);const curve=10*mcb>=1.2*Ist?'C':14*mcb>=1.2*Ist?'D':null;const tbl=v.ph=='3'?B3:B2;const ci=STD.findIndex((x,i)=>tbl[i]*.87>=mcb);const cab=ci>=0?STD[ci]:null;return[['کرنٹ FLC|Full-load current',f(FLC)+' A'],['سٹارٹ کرنٹ|Starting current',f(Ist)+' A'],['MCB (≥ 1.25 × FLC)|MCB (≥ 1.25 × FLC)',mcb+' A','g'],['ٹرپ کریکٹر|Trip curve',curve?curve+(curve=='C'?' (10× مقناطیسی)|C (10× magnetic)':' (14× مقناطیسی)|D (14× magnetic)'):'بڑا بریکر یا سافٹ سٹارٹر|Bigger breaker or soft starter',curve?'g':'w'],['کیبل (کاپر، 40°C، کنڈیوٹ)|Cable (copper, 40°C, conduit)',cab?cab+' mm²':'بڑا سائز درکار|Larger size needed',cab?'g':'w'],['اوورلوڈ ریلے سیٹنگ|Overload relay setting',f(FLC)+' A (class 10)','g']]},nt:'کیبل کی کپیسٹی 40°C کے لیے 0.87 سے کم کی گئی ہے۔ مثال: 11.19 kW، 400 V، PF 0.85، ایفیشنسی 90% ⇒ FLC ≈ 21.1 A، MCB 32 A، کرو C، کیبل 10 mm² (کنڈیوٹ میں 30°C پر 6 mm² کافی ہے)۔ مقامی کوڈ اور ڈیٹا شیٹ دیکھیں۔|Derated to 0.87 for 40°C. Example: 11.19 kW, 400 V, PF 0.85, 90% ⇒ FLC ≈ 21.1 A, MCB 32 A, curve C, cable 10 mm² (6 mm² is enough at 30°C in conduit). Check local code and data sheet.'});
 C.push(
 {i:MI('C'),n:'موٹر کپیسٹر سائز|Motor capacitor size',
 f:[{k:'t',l:'موٹر کی قسم|Motor type',v:'run',o:[['run','سنگل فیز — صرف رن|Single-phase — run only'],['rs','سنگل فیز — سٹارٹ + رن|Single-phase — start + run'],['t3','تھری فیز موٹر سنگل فیز پر|3-phase motor on 1-phase']]},
@@ -3797,6 +3798,80 @@ const SFP=[
 ];
 function sfR(){const t=XT.find(x=>x[0]=='safety');let n=0;em.innerHTML='<h2>'+lb(t[1])+'</h2><div id="tlw"><div class="tln">'+lb(TLN)+'</div><h3 class="tlg">'+lb('وائرنگ کے دوران حفاظتی ہدایات|Safety guidelines for wiring')+'</h3>'+SFG.map(g=>'<h3 class="tlg sfs">'+lb(g[0])+'</h3>'+g[1].map(x=>'<div class="sfi"><b>'+(++n)+'</b><span>'+lb(x)+'</span></div>').join('')).join('')+'<h3 class="tlg">'+lb('حفاظتی سامان کی فہرست|Safety equipment list')+'</h3>'+SFP.map(g=>'<h3 class="tlg sfs">'+lb(g[0])+'</h3>'+g[1].map(it=>'<div class="tli"><div class="tlp">'+tlS(it[0])+'</div><div class="tlt"><h4>'+lb(it[1])+'</h4><p>'+lb(it[2])+'</p></div></div>').join('')).join('')+'</div>';em.scrollTop=0}
 let tbi=0;
+
+/* ---- new tables: aluminium cable, trip characteristics ---- */
+CH.push(['Aluminium',()=>'<h3>Aluminium PVC wire: size and current rating</h3><p>Approximate values: about 78% of the copper rating for the same size, so a larger size is needed for the same current. Aluminium is normally not used for small wiring (below 2.5 mm²). Confirm with your local standard.</p>'+TW(['Size mm²','R Ω/km (20°C)','Conduit (B) 3-wire','Open (C) 3-wire'],STD.map((s,i)=>[s,(R20[i]*1.64).toFixed(2),Math.round(B3[i]*.78),Math.round(C3[i]*.78)]))+WN('Aluminium resistance is about 1.64 times copper of the same size. The same derating factors apply.')]);
+CH.push(['Trip curves',()=>'<h3>MCB, MCCB and fuse trip characteristics</h3><p>A breaker trips in two ways: <b>magnetic</b> (instant, for short circuits) and <b>thermal</b> (after a delay, for overloads). The values below are the simplified model used in this app, for teaching.</p>'+TW(['Device','Magnetic (instant) trip','Thermal (overload) trip','Typical use'],[['MCB type B','3 to 5 × In (app: 5×)','Delay from 1.13 × In','Lighting, heating, long cables'],['MCB type C','5 to 10 × In (app: 10×)','Delay from 1.13 × In','General loads, sockets, small motors'],['MCB type D','10 to 20 × In (app: 14×)','Delay from 1.13 × In','Motors, transformers, welding'],['Fuse','About 10 × In (app: 10×)','Delay, faster than an MCB','Simple, cheap, one-time protection']])+'<p><b>Model in this app:</b> MCB thermal time = 60 ÷ (M² − 1) s; fuse = 20 ÷ (M² − 1) s; overload relay = 30 × class ÷ (M² − 1) s, where M = current ÷ rating. Example: a 16 A MCB at 32 A (M = 2) trips in about 20 s.</p>'+WN('These are teaching values. For real design, use the manufacturer data sheet.')]);
+CH.push(['Time-current graph',()=>'<h3>Time-current graph: breaker, fuse, relay and motor start</h3><p>Current is on the bottom axis and trip time on the side axis, both on log scales. A curve that is lower and further left trips sooner. Change the values below to see the effect.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:8px 0">'+
+ '<label>MCB (A)<select id="tcgRt" oninput="tcgUpd()">'+[6,10,16,20,25,32,40,50,63].map(x=>'<option value="'+x+'"'+(x==32?' selected':'')+'>'+x+' A</option>').join('')+'</select></label>'+
+ '<label>MCB curve<select id="tcgCv" oninput="tcgUpd()"><option value="B">B</option><option value="C" selected>C</option><option value="D">D</option></select></label>'+
+ '<label>Fuse (A)<select id="tcgFs" oninput="tcgUpd()">'+[2,4,6,10,16,20,32,40,63].map(x=>'<option value="'+x+'"'+(x==16?' selected':'')+'>'+x+' A</option>').join('')+'</select></label>'+
+ '<label>Relay setting (A)<input id="tcgRl" type="number" value="22" oninput="tcgUpd()"></label>'+
+ '<label>Relay class<select id="tcgCl" oninput="tcgUpd()"><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option></select></label>'+
+ '<label>Motor FLC (A)<input id="tcgFl" type="number" value="21.1" oninput="tcgUpd()"></label>'+
+ '<label>Start × FLC<input id="tcgLr" type="number" value="6" oninput="tcgUpd()"></label>'+
+ '<label>Start time (s)<input id="tcgTa" type="number" value="2" oninput="tcgUpd()"></label></div>'+
+ '<div id="tcgsvg">'+tcgSvg(tcgRead())+'</div>'+
+ '<p class="hint">Solid: MCB (blue), fuse (green), relay (orange). Dashed grey: motor full-load current. Red: motor starting point (current and start time).</p>'+WN('Simplified curves. Shapes match the app simulator, not a specific product.')]);
+function tcgRead(){const g=id=>{const e=document.getElementById(id);return e?+e.value:0};const cv=document.getElementById('tcgCv');return{rt:g('tcgRt')||32,cv:cv?cv.value:'C',fs:g('tcgFs')||16,rl:g('tcgRl')||22,cl:g('tcgCl')||10,fl:g('tcgFl')||21.1,lr:g('tcgLr')||6,ta:g('tcgTa')||2}}
+function tcgUpd(){const o=document.getElementById('tcgsvg');if(o)o.innerHTML=tcgSvg(tcgRead())}
+window.tcgUpd=tcgUpd;
+function tcgSvg(v){
+ const W=640,H=420,L=70,R=18,T=18,B=56,x0=0,x1=3,y0=-2,y1=4;
+ const X=I=>L+(Math.log10(I)-x0)/(x1-x0)*(W-L-R),Y=t=>T+(y1-Math.log10(Math.min(Math.max(t,.01),1e4)))/(y1-y0)*(H-T-B);
+ let g='';
+ [1,10,100,1000].forEach(I=>{const x=X(I);g+='<line x1="'+x+'" y1="'+T+'" x2="'+x+'" y2="'+(H-B)+'" stroke="#e2e2e2"/><text x="'+x+'" y="'+(H-B+18)+'" text-anchor="middle" font-size="12">'+I+'</text>'});
+ [.01,.1,1,10,100,1000,1e4].forEach(t=>{const y=Y(t);g+='<line x1="'+L+'" y1="'+y+'" x2="'+(W-R)+'" y2="'+y+'" stroke="#e2e2e2"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="12">'+t+'</text>'});
+ const line=(pts,col)=>'<polyline fill="none" stroke="'+col+'" stroke-width="2.4" points="'+pts.filter(p=>p[0]>=1&&p[0]<=1000).map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ')+'"/>';
+ const curve=(In,mult,k,col)=>{const pts=[];for(let i=0;i<=60;i++){const M=1.13*Math.pow(mult/1.13,i/60);pts.push([In*M,k/(M*M-1)])}pts.push([In*mult,.01]);return line(pts,col)};
+ let c='';
+ c+=curve(v.rt,v.cv=='B'?5:v.cv=='D'?14:10,60,'#1f6fd1');
+ c+=curve(v.fs,10,20,'#2f9e55');
+ {const pts=[];for(let i=0;i<=60;i++){const M=1.05*Math.pow(10/1.05,i/60);pts.push([v.rl*M,30*v.cl/(M*M-1)])}c+=line(pts,'#e07b00')}
+ c+='<line x1="'+X(v.fl).toFixed(1)+'" y1="'+T+'" x2="'+X(v.fl).toFixed(1)+'" y2="'+(H-B)+'" stroke="#777" stroke-dasharray="5 4"/>';
+ const ist=v.lr*v.fl;
+ c+='<line x1="'+X(ist).toFixed(1)+'" y1="'+Y(v.ta).toFixed(1)+'" x2="'+X(ist).toFixed(1)+'" y2="'+Y(.01).toFixed(1)+'" stroke="#d13a2a" stroke-width="3"/><circle cx="'+X(ist).toFixed(1)+'" cy="'+Y(v.ta).toFixed(1)+'" r="5" fill="#d13a2a"/>';
+ c+='<text x="'+(X(ist)+8).toFixed(1)+'" y="'+(Y(v.ta)-6).toFixed(1)+'" font-size="12" fill="#d13a2a">start '+ist.toFixed(0)+' A, '+v.ta+' s</text>';
+ return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:640px;background:#fff;border:1px solid #ccc;border-radius:8px">'+g+'<rect x="'+L+'" y="'+T+'" width="'+(W-L-R)+'" height="'+(H-T-B)+'" fill="none" stroke="#333"/>'+c+'<text x="'+(W/2)+'" y="'+(H-12)+'" text-anchor="middle" font-size="13">Current (A), log scale</text><text transform="translate(16,'+(H/2)+') rotate(-90)" text-anchor="middle" font-size="13">Trip time (s), log scale</text></svg>';
+}
+/* ---- live readings panel under the canvas ---- */
+function liveEnsure(){if(document.getElementById('live'))return;const sd=document.getElementById('side');if(!sd)return;const b=document.createElement('div');b.id='live';b.innerHTML='<div class="elh"><h3></h3></div><div id="livel"></div>';sd.insertBefore(b,document.getElementById('elog')||null)}
+function liveDraw(){
+ liveEnsure();const box=document.getElementById('live');if(!box||!S||!S.idx)return;
+ const en=LG=='en',rows=[],esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const SKIP=/^(bus\d|txt|lbl|note|label)/;
+ const T=(c)=>Object.keys((DEF[c.type]||{}).t||{});
+ const vOf=(c,ts)=>{try{if(ts.length<2)return null;const a=S.idx[c.id+'.'+ts[0]],q=S.idx[c.id+'.'+ts[1]];if(a===undefined||q===undefined)return null;const v=S.dv(a,q);return isFinite(v)?v:null}catch(_){return null}};
+ const iOf=c=>{try{const x=S.cm(c);return isFinite(x)?x:null}catch(_){return null}};
+ const fV=v=>v==null?'—':v.toFixed(1)+' V', fA=i=>i==null?'—':i.toFixed(2)+' A';
+ comps.forEach(c=>{try{
+  if(SKIP.test(c.type))return;
+  const ts=T(c);
+  if(c.type=='motor3'){const R=mRead(c),st=R.m=='off'?(en?'stopped':'بند'):R.m=='odd'?(en?'wrong connection':'غلط کنکشن'):(R.sp<.99?(en?'starting':'سٹارٹ ہو رہی ہے'):(en?'running':'چل رہی ہے'));
+   rows.push([nm(c),st,fV(R.V),R.Il.map(x=>x.toFixed(1)).join(' / ')+' A',(R.Pin/1000).toFixed(2)+' kW · PF '+R.pf.toFixed(2)+' · η '+(R.eff*100).toFixed(0)+'% · '+(R.n||0).toFixed(0)+' rpm']);return}
+  const isBk=(isF(c)||isB(c))&&c.type!='fuse';
+  if(isBk||c.type=='fuse'||c.type=='ol'||c.type=='olx'){
+   const I=c.type=='fuse'?S.cm(c):(c.type=='ol'||c.type=='olx')?Math.max(...[0,1,2].map(j=>S.cm(rn(c,j)))):bkI(c);
+   const heat=c.type=='fuse'?(c.fth||0):(c.type=='ol'||c.type=='olx')?(c.mth||0):(c.bth||0);
+   const tripped=!!(c.trip||c.tr),relay=c.type=='ol'||c.type=='olx';
+   const state=tripped?(en?'tripped':'ٹرپ ہو گیا'):relay?(en?'ok':'ٹھیک'):(c.s===0?(en?'open':'کھلا'):(en?'closed':'بند'));
+   rows.push([nm(c),state,'—',fA(I),'heat '.replace('heat',en?'heat':'حرارت')+Math.round(Math.min(heat,1)*100)+'%']);return}
+  if(c.type.startsWith('supply')){const v=vOf(c,ts);rows.push([nm(c),v>1?(en?'live':'لائیو'):(en?'off':'بند'),fV(v),'—',ts.length>2?(en?'3-phase source':'3 فیز سورس'):(en?'single-phase source':'سنگل فیز سورس')]);return}
+  const V=vOf(c,ts),multi=ts.length>2;const I=multi?null:iOf(c);
+  let state;
+  if(typeof c.s=='number'&&!/^bulb|^res$/.test(c.type))state=c.s?(en?'closed':'بند'):(en?'open':'کھلا');
+  else state=(I!=null&&I>.005)?(en?'on':'آن'):(en?'off':'آف');
+  if(!/^bulb|^res$/.test(c.type)&&!ts.length)return;
+  rows.push([nm(c),state,fV(V),multi?'—':fA(I),multi?(en?'multi-terminal':'ملٹی ٹرمینل'):''])
+ }catch(_){}});
+ const hd=en?['Part','State','Voltage','Current','Reading']:['جزو','حالت','وولٹیج','کرنٹ','ریڈنگ'];
+ const html=rows.length?'<table style="width:100%;border-collapse:collapse;font-size:12.5px"><tr>'+hd.map(h=>'<th style="text-align:start;border-bottom:1px solid #ccc;padding:3px">'+h+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td style="padding:3px;border-bottom:1px solid #eee">'+esc(x)+'</td>').join('')+'</tr>').join('')+'</table>':'<p class="hint">'+(en?'Place parts on the circuit to see live readings.':'سرکٹ میں پارٹس لگائیں تاکہ لائیو ریڈنگز دکھیں۔')+'</p>';
+ const h=box.querySelector('.elh h3');if(h)h.textContent=en?'Live readings':'لائیو ریڈنگز';
+ const lv=document.getElementById('livel');if(lv)lv.style.cssText='max-height:260px;overflow:auto';
+ if(box.dataset.sig===html)return;box.dataset.sig=html;
+ if(lv)lv.innerHTML=html;
+}
+window.liveDraw=liveDraw;
 function tbShow(i){tbi=i;const c=$('#emc'),bd=$('#emb');if(!c||!bd)return;c.querySelectorAll('button').forEach((x,k)=>x.classList.toggle('on',k==i));window.__tbi=i;window.__CH=CH;bd.innerHTML=(window.TDL?TDL.bar():'')+CH[i][1]();if(window.TDL)TDL.after(bd);em.scrollTop=0}
 var CVT=[
 {n:'Current',i:'A',a:3,b:2,u:[['GA',1e9],['MA',1e6],['kA',1e3],['A',1],['mA',1e-3],['µA',1e-6],['nA',1e-9],['pA',1e-12]]},
